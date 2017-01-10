@@ -1,0 +1,31 @@
+package matrixCalculator;
+
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import javax.swing.JTextField;
+
+public class NumberKeyInput implements KeyListener{
+	
+	public void keyTyped(KeyEvent e) {
+		
+	}
+
+	public void keyPressed(KeyEvent e) {
+		
+	}
+
+	public void keyReleased(KeyEvent e) {
+		
+		char charEntered = e.getKeyChar();
+		Object source = e.getSource();
+		
+		if(source instanceof JTextField){
+			if(charEntered > '9' || charEntered < '0'){
+				((JTextField)source).setText("");
+			}
+		}
+		
+	}
+
+}
