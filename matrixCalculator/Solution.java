@@ -1,181 +1,232 @@
 package matrixCalculator;
 
-import java.awt.Toolkit;
-import java.util.Arrays;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 
-public class WindowDistributor {
+/**
+ * Class that is going to be in charge of storing the values entered for
+ * every matrix window and then displays the solution matrix of the 
+ * calculation
+ * 
+ * @author Mauricio Hernandez
+ *
+ */
+
+public class Solution implements WindowListener {
 	
-	/**default toolkit used to get the screen size*/
-	private Toolkit tk = Toolkit.getDefaultToolkit();
-	
-	/**the width and height of the screen*/
-	private final int SCREEN_WIDTH = tk.getScreenSize().width, SCREEN_HEIGHT = tk.getScreenSize().height;
-	
-	/**list of matrices involved in the calculation*/
+	/**list of matrix windows*/
 	private LinkedList<MatrixWindow> matrixWindows;
 	
-	public WindowDistributor(LinkedList<MatrixWindow> matrixWindows){
-		this.matrixWindows = matrixWindows;
-	}
+	/**tracks the number of windows open*/
+	private int windowsOpen;
 	
-	/**
-	 * Method in charge of displaying the windows in an orderly manner
-	 * through the whole screen
-	 * 
-	 * @param matrices the list of matrices that are going to be displayed
-	 */
-	public void displayWindows(){
+	/** list of matrices taken from the windows*/
+	private LinkedList<Matrix> matrices;
+	
+	/** the operation to be performed */
+	private Operation operation;
+	
+	/** window that will contain the final matrix */
+	private Window solution;
+	
+	/**matrix used to iterate through all the matrices inside the list of matrices*/
+	private Matrix resultingMatrix;
+	
+	/** used to link the windows with the matrix window*/
+	private HashMap<Window, Integer> mw;
+	
+	public Solution(LinkedList<MatrixWindow> matrixWindows, Operation operation){
 		
-//		number of rows of windows displayed on screen
-		int rows = 1;
+		this.matrixWindows = matrixWindows;
+		matrices = new LinkedList<Matrix>();
+		this.operation = operation;
+		windowsOpen = matrixWindows.size();
 		
-//		number of columns of windows displayed on screen
-		int columns = 1;
+		System.out.println("Initial windows open: " + windowsOpen);
 		
-//		store the horizontal and vertical positions of every matrix window
-		int[] xPositions = new int[1];
-		int[] yPositions = new int[1];
+//		add the window listener to all windows
+		for(MatrixWindow window: matrixWindows){
+			window.addWindowListener(this);
+		}
 		
-//		we want to leave a space between the windows of 100px
-		int totalWidth = 100;
+		mw = new HashMap<Window, Integer>();
 		
-//		the width of the largest window
-		int maxWidth = 0;
-//		the height of the highest window
-		int maxHeight = 0;
+		for(int i = 0; i < matrixWindows.size(); i++){
+			mw.put(matrixWindows.get(i).getWindow(), matrixWindows.get(i).getMatrix().getID());
+		}
 		
-//		get the max width and height from the list of windows
+	}
+
+	public void windowActivated(WindowEvent e) {
+		
+	}
+
+	public void windowClosed(WindowEvent e) {
+		
+//		add the matrix from the window just closed to the list of matrices
+		
+		int index = -1;
+		
+		Matrix matrix = new Matrix(matrixWindows.getFirst().getMatrix().getRows(), matrixWindows.getFirst().getMatrix().getColumns());
+		
 		for(MatrixWindow window: matrixWindows){
 			
-			if(maxWidth < window.getWidth()) maxWidth = window.getWidth();
-			if(maxHeight < window.getHeight()) maxHeight = window.getHeight();
-			
-		}
-		
-//		FOR TESTING ONLY
-		System.out.println("\nLargest width: " + maxWidth + "\nLargest height: " + maxHeight + "\n");
-		
-//		set the initial x and y position for the first object
-		xPositions[0] = 100;
-		yPositions[0] = 50;
-		
-//		help iterate through all values inside the list of windows
-		boolean outOfBounds = false; 
-		int w = 100;
-		
-//		check the number of windows per row, and set the xPositions alongside
-		while(!outOfBounds){
-			
-			w += maxWidth + 100;
-			
-//			only if the next position is not out of bounds
-			if(w <= SCREEN_WIDTH - maxWidth){
-				xPositions = addToArray(xPositions, w);
-			}else{
+			if((int)mw.get((Window)e.getSource()) == window.getMatrix().getID()){
 				
-//				break from the while loop
-				outOfBounds = true;
+				System.out.println("Found ID: " + window.getMatrix().getID());
+				
+				matrix = window.getMatrix();
+				index++;
+				break;
 				
 			}
 			
 		}
 		
-//		FOR TESTING ONLY: print the length of the xPositions array and all of its values
-		System.out.println("xPositions length: " + xPositions.length);
-		System.out.println(Arrays.toString(xPositions));
+//		add the declared matrix to the matrix array
+		matrices.add(index, matrix);
 		
-//		get the number of rows by dividing the total number of windows by the number of windows per row
-		rows = (int)Math.ceil(matrixWindows.size() / xPositions.length);
+		System.out.println("adding another matrix to the list...");
 		
-//		recycling variables to get y positions
-		outOfBounds = false;
-		w = 50;
+		windowsOpen--;
 		
-//		we want to check whether the window falls of the screen vertically, if it does, cycle from the beginning
-		while(!outOfBounds){
+		if(windowsOpen == 0){
 			
-			w += maxHeight + 50;
+			System.out.println("0 windows open, operation selected: " + operation
+					+ "\nNumber of matrix in list: " + matrices.size());
 			
-//			only if the next position is not out of bounds
-			if(w <= SCREEN_HEIGHT - maxHeight){
-				
-				yPositions = addToArray(yPositions, w);
-				
-//				else check if there are more rows to set the vertical positions
-			}else if(yPositions.length < rows){
-				
-				w = 50;
-				yPositions = addToArray(yPositions, w);
-				
-//				else make the loop stop
-			}else{
-				
-//				break from the while loop
-				outOfBounds = true;
-				
-			}
+//			perform the operation selected on the spinner
 			
-		}
-		
-		boolean breakAll = false;
-		int a = 0;
-		
-//		set the positions for the windows
-		for(int i = 0; i < yPositions.length; i++){
+//			matrix used to iterate over all matrices inside the list and
+			resultingMatrix = matrices.getFirst();
+			matrices.removeFirst();
+//			at this point the first matrix will be the next matrix to evaluate
 			
-			for(int j = 0; j < xPositions.length; j++){
+//			helps iterate through all matrices
+			Iterator iterator = matrices.iterator();
+			
+			for(int i = 0; i < matrices.size(); i++){
 				
-				if(a < matrixWindows.size()){
-					matrixWindows.get(a).getWindow().setLocation(xPositions[j], yPositions[i]);
-					matrixWindows.get(a).setVisible(true);
-					a++;
-				}else{
-					breakAll = true;
-					break;
+				System.out.println("Performing the calculation...");
+				
+				if(operation == Operation.ADDITION){
+					
+//					while the list still has matrices, evaluate
+					while(iterator.hasNext()){
+						
+//						the matrix to be evaluated
+						Matrix matrix2 = (Matrix)iterator.next();
+						
+//						just if the matrix was not canceled
+						if(matrix2.isOperable()){
+							
+							for(int row = 0; row < matrix2.getRows(); row++){
+								
+								for(int col = 0; col < matrix2.getColumns(); col++){
+									
+	//								adds the values inside the same index of both matrices and sets that value to the resulting matrix
+									resultingMatrix.insertValue(resultingMatrix.getValue(row, col) + matrix2.getValue(row, col), row, col);
+									
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+//					reset matrices' id
+					Matrix.resetID();
+					
+//					FOR SUBTRACTION==========================
+				}else if(operation == Operation.SUBTRACTION){
+					
+//					while the list still has matrices, evaluate
+					while(iterator.hasNext()){
+						
+//						the matrix to be evaluated
+						Matrix matrix2 = (Matrix)iterator.next();
+						
+//						just if the matrix has not been canceled
+						if(matrix2.isOperable()){
+						
+							for(int row = 0; row < matrix2.getRows(); row++){
+								
+								for(int col = 0; col < matrix2.getColumns(); col++){
+									
+	//								adds the values inside the same index of both matrices and sets that value to the resulting matrix
+									resultingMatrix.insertValue(resultingMatrix.getValue(row, col) - matrix2.getValue(row, col), row, col);
+									
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+//					reset the id of the matrices
+					Matrix.resetID();
+					
+//					FOR MULTIPLICATION==========================
+				}else if(operation == Operation.MULTIPLICATION){
+					
+					while(iterator.hasNext()){
+						
+//						the matrix to be evaluated
+						Matrix matrix2 = (Matrix)iterator.next();
+						
+//						just if the matrix has not been canceled
+						if(matrix2.isOperable()){
+						
+							for(int row = 0; row < matrix2.getRows(); row++){
+								
+								for(int col = 0; col < matrix2.getColumns(); col++){
+									
+	//								adds the values inside the same index of both matrices and sets that value to the resulting matrix
+									resultingMatrix.insertValue(resultingMatrix.getValue(row, col) - matrix2.getValue(row, col), row, col);
+									
+								}
+								
+							}
+							
+						}
+						
+					}
+					
+//					FOR INVERSE==========================
+				}else if(operation == Operation.INVERSE){
+					
+					
+					
 				}
 				
 			}
 			
-			if(breakAll) break;
-			
 		}
-		
+	
+	}
+
+	public void windowClosing(WindowEvent e) {
 		
 	}
-	
-	/**
-	 * Helper method used to add values to an integer array
-	 * 
-	 * @param array the array to which values are going to be added
-	 * @param value the value to be added to the array
-	 */
-	public int[] addToArray(int[] array, int value){
-		
-		int[] newArray = new int[array.length + 1];
-		
-		System.arraycopy(array, 0, newArray, 0, array.length);
-		
-		newArray[array.length] = value;
-		
-		return newArray;
+
+	public void windowDeactivated(WindowEvent e) {
 		
 	}
-	
-//	FOR TESTING
-	public static void main(String[] args) {
+
+	public void windowDeiconified(WindowEvent e) {
 		
-		LinkedList<MatrixWindow> list = new LinkedList<MatrixWindow>();
+	}
+
+	public void windowIconified(WindowEvent e) {
 		
-		for(int i = 24; i > 0; i--){
-			list.add(new MatrixWindow(new Matrix(4,4)));
-		}
-		
-		list.add(new MatrixWindow(new Matrix(5,5)));
-		
-		WindowDistributor distributor = new WindowDistributor(list);
-		
-		distributor.displayWindows();
+	}
+
+	public void windowOpened(WindowEvent e) {
 		
 	}
 	
