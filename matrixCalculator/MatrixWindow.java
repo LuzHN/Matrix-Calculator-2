@@ -84,7 +84,7 @@ public class MatrixWindow extends JPanel implements ActionListener {
 			foreground = Color.BLACK;
 		}
 		
-		Window.setTheme(this, background, foreground, MatrixCalculator.defaultFont, true, matrixPanel);
+		Window.setTheme(this, background, foreground, MatrixCalculator.DEFAULT_FONT, true, matrixPanel);
 //		FOR NOW: make the title label borderless
 		title.setBorder(null);
 		
