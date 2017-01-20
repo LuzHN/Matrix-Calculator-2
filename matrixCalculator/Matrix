@@ -1,5 +1,6 @@
 package matrixCalculator;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class Matrix {
@@ -21,6 +22,9 @@ public class Matrix {
 	/** determines whether a matrix is canceled */
 	private boolean isCanceled = false;
 	
+	/** tells if matrix is square matrix */
+	private boolean square;
+	
 	public Matrix(int row, int column){
 		
 		this.row = row;
@@ -30,6 +34,12 @@ public class Matrix {
 //		set the dimension of the matrix
 		rows = new double[row][column];
 		columns = new double[column][row];
+		
+		if(row != column){
+			square = false;
+		}else{
+			square = true;
+		}
 		
 	}
 	
@@ -91,10 +101,23 @@ public class Matrix {
 				
 				for(int j = 0; j < columns[i].length; j++){
 					
-					columns[j][i] = list.get(a++);
+					try{
+						columns[i][j] = rows[j][i];
+					}catch(ArrayIndexOutOfBoundsException e){
+						System.out.println("Value of a: " + a + ", the size of the matrix: " + list.size());
+					}
 					
 				}
 				
+			}
+			
+//			FOR TESTING ONLY: print the values inside the columns array
+			System.out.println("\nPrinting the values of the array of columns:\n");
+			for(double[] row: columns){
+				for(double column: row){
+					System.out.print("[" + column + "]");
+				}
+				System.out.println();
 			}
 			
 			return true;
@@ -195,6 +218,103 @@ public class Matrix {
 	 */
 	public static final void resetID(){
 		idCounter = 0;
+	}
+	
+	/**
+	 * Transposes the double array (matrix)
+	 * 
+	 * @return the transposed matrix
+	 */
+	public Matrix transpose(){
+		
+		Matrix transpose = new Matrix(row, column);
+		
+		for(int i = 0; i < row; i++){
+			
+			for(int j = 0; j < column; j++){
+				
+				transpose.insertValue(getValue(i,j), j, i);
+				
+			}
+			
+		}
+		
+//		return the transposed matrix
+		return transpose;
+		
+	}
+	
+	/**
+	 * Gets a vector (double array) from the matrix in the specified index
+	 * 
+	 * @param index the index of the vector row of the matrix
+	 * @return the array made up of the values of the matrix row
+	 */
+	public double[] getRowVector(int index){
+		
+		double[] vector = new double[row];
+		
+		for(int i = 0; i < row; i++){
+			
+			vector[i] = rows[index][i];
+			
+		}
+		
+		return vector;
+		
+	}
+	
+	/**
+	 * Gets a vector (double array) from the matrix in the specified index
+	 * 
+	 * @param index the index of the vector row of the matrix
+	 * @return the array made up of the values of the matrix row
+	 */
+	public double[] getColumnVector(int index){
+		
+		double[] vector = new double[column];
+		
+		for(int i = 0; i < column; i++){
+			
+			vector[i] = rows[i][index];
+			
+		}
+		
+		return vector;
+		
+	}
+	
+	/**
+	 * Creates a copy of the matrix
+	 * 
+	 * @param matrix the matrix from which values are going to be copied from
+	 * @return the matrix containing the specified copy of the matrix
+	 */
+	public Matrix clone(){
+		
+		Matrix newMatrix = new Matrix(row, column);
+		
+		for(int i = 0; i < rows.length; i++){
+			
+			for(int j = 0; j < rows[i].length; j++){
+				
+				newMatrix.insertValue(rows[i][j], i, j);
+				
+			}
+			
+		}
+		
+		return newMatrix;
+		
+	}
+	
+	/**
+	 * Tells whether a matrix is a square matrix
+	 * 
+	 * @return true if matrix is squared
+	 */
+	public boolean isSquared(){
+		return square;
 	}
 	
 }
