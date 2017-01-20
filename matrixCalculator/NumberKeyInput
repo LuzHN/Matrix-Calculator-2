@@ -7,6 +7,8 @@ import javax.swing.JTextField;
 
 public class NumberKeyInput implements KeyListener{
 	
+	private boolean dot = false;
+	
 	public void keyTyped(KeyEvent e) {
 		
 	}
@@ -21,9 +23,15 @@ public class NumberKeyInput implements KeyListener{
 		Object source = e.getSource();
 		
 		if(source instanceof JTextField){
+			
 			if(charEntered > '9' || charEntered < '0'){
-				((JTextField)source).setText("");
+				
+				if(!(e.getKeyCode() != e.VK_TAB)){
+					((JTextField)source).setText("");
+				}
+				
 			}
+			
 		}
 		
 	}
