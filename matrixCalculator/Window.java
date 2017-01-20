@@ -34,10 +34,10 @@ public class Window extends JFrame{
 	/**
 	 * Creates a window with a 16 : 9 ratio
 	 * 
-	 * @param container
-	 * @param width
-	 * @param title
-	 * @param exitOperation
+	 * @param container going to be contained inside the frame
+	 * @param width the width of the frame, height is automatically set
+	 * @param title the title of the frame
+	 * @param exitOperation the exit operation of the frame
 	 */
 	public Window(Container container, int width, String title, int exitOperation){
 		
@@ -54,9 +54,9 @@ public class Window extends JFrame{
 	 * Creates a window without defining the size
 	 * this window packs everything inside it
 	 * 
-	 * @param container
-	 * @param title
-	 * @param exitOperation
+	 * @param container going to be contained inside the frame
+	 * @param title the title of the frame
+	 * @param exitOperation the exit operation of the frame
 	 */
 	public Window(Container container, String title, int exitOperation, boolean visible){
 		
@@ -72,9 +72,9 @@ public class Window extends JFrame{
 	/**
 	 * Sets the theme of a container in a JFrame object
 	 * 
-	 * @param component
-	 * @param background
-	 * @param foreground
+	 * @param component the component to be painted with the theme
+	 * @param background the background color of the component
+	 * @param foreground the foregorund color of the component
 	 */
 	public static void setTheme(Component component, Color background, Color foreground, Font font){
 		
@@ -87,7 +87,9 @@ public class Window extends JFrame{
 		if(component instanceof Container){
 			
 			if(component instanceof JPanel){
+				
 				((JPanel)component).setBorder(BorderFactory.createLineBorder(foreground, 1));
+				
 			}
 			
 			for(int i = 0; i < ((Container)component).getComponentCount(); i++){
@@ -172,9 +174,9 @@ public class Window extends JFrame{
 	 * it doesn't add border to the components in the
 	 * exceptions array
 	 * 
-	 * @param container
-	 * @param background
-	 * @param foreground
+	 * @param container the container to be set with the theme
+	 * @param background the background color of the container
+	 * @param foreground the foreground color of the container
 	 */
 	public static void setTheme(Component component, Color background, Color foreground, Font font, LinkedList<Component> exceptions){
 		
@@ -246,5 +248,19 @@ public class Window extends JFrame{
 		cont.add(comp, gbc);
 		
 	}//END OF ADD COMPONENT()
+	
+	/**
+	 * Sets the size of the window and determines whether window is centered or not
+	 * 
+	 * @param width the new width for the window
+	 * @param height the new height for the window
+	 * @param center determines centered or not
+	 */
+	public void setSize(int width, int height, boolean center){
+		
+		setSize(width, height);
+		if(center) setLocationRelativeTo(null);
+		
+	}
 	
 }
