@@ -5,6 +5,7 @@ public enum Operation {
 	ADDITION,
 	SUBTRACTION,
 	MULTIPLICATION,
-	INVERSE;
+	INVERSE,
+	TRANSPOSE;
 	
 }
